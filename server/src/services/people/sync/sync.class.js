@@ -1,4 +1,6 @@
 const { NotImplemented } = require('@feathersjs/errors');
+const get = require('lodash/get');
+const { salesloft } = require('../../../salesloft');
 
 /* eslint-disable no-unused-vars */
 exports.Sync = class Sync {
@@ -16,7 +18,25 @@ exports.Sync = class Sync {
   }
 
   async create (data, params) {
-    return data;
+    const client = salesloft(this.app);
+    const { data: response, error } = await client.get('/v2/people.json');
+    if (!error) {
+      const records = get(response, 'data');
+      const service = this.app.service('people');
+      const existingRecords = await service._find({
+        query: {
+          id: { $in: records.map(record => record.id) }
+        },
+        paginate: false
+      });
+      const existingRecordsIds = existingRecords.map(record => record.id);
+      const newRecords = await Promise.all(
+        records.filter(record => !existingRecordsIds.includes(record.id)).map(newRecord => service.create(newRecord))
+      );
+      return { message: `${newRecords.length} new records created` };
+    } else {
+      throw error;
+    }
   }
 
   async update (id, data, params) {

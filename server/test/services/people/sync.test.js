@@ -7,4 +7,10 @@ describe('\'people/sync\' service', () => {
 
     assert.ok(service, 'Registered the service');
   });
+  it('syncs new records found', async () => {
+    const service = app.service('people/sync');
+
+    const { message } = await service.create({});
+    assert.match(message, /new records created/);
+  });
 });
