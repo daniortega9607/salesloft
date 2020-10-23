@@ -22,6 +22,13 @@ Start the app and navigate to [localhost:3030](http://localhost:3030)
 npm start
 ```
 
+## Usage
+
+Once in the app click on "Sync New" button. It will load the newest people into
+the app.
+
+* SALESLOFT_API_KEY is required in order to sync people from salesloft
+
 ## Testing
 
 Unit testing could be run with command test
