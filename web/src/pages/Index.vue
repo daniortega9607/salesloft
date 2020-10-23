@@ -12,7 +12,7 @@
         <div class="q-pa-md q-gutter-sm">
           <q-btn label="Sync New" @click="syncPeople"/>
           <q-btn color="primary" label="Count Chars" @click="countChars"/>
-          <q-btn color="secondary" label="Find Duplicates" />
+          <q-btn color="secondary" label="Find Duplicates" @click="findDuplicates()"/>
         </div>
       </template>
     </q-table>
@@ -21,15 +21,21 @@
     >
       <characters-counter :rows="charactersCounter"/>
     </q-dialog>
+    <q-dialog
+      v-model="showDuplicates"
+    >
+      <possible-duplicates :rows="duplicates" :useJaroWinkler="useJaroWinkler" @toggle-jaro-winkler="findDuplicates"/>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 import CharactersCounter from '../components/CharactersCounter.vue';
+import PossibleDuplicates from '../components/Duplicates.vue';
 
 export default {
   name: 'PageIndex',
-  components: { CharactersCounter },
+  components: { CharactersCounter, PossibleDuplicates },
   data() {
     return {
       frequency: false,
@@ -67,6 +73,9 @@ export default {
         rowsNumber: 0,
       },
       loading: false,
+      duplicates: [],
+      showDuplicates: false,
+      useJaroWinkler: false,
     };
   },
   async mounted() {
@@ -115,8 +124,18 @@ export default {
       }
       this.loading = false;
     },
-    // async findDuplicates() {
-    // }
+    async findDuplicates(useJaroWinkler = false) {
+      this.useJaroWinkler = useJaroWinkler;
+      this.loading = true;
+      const { data: response } = await this.$axios.get('/people/deduplicate', {
+        params: { 'jaro-winkler': this.useJaroWinkler },
+      });
+      if (response) {
+        this.duplicates = response;
+        this.showDuplicates = true;
+      }
+      this.loading = false;
+    },
   },
 };
 </script>
