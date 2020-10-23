@@ -22,5 +22,13 @@ Start the app and navigate to [localhost:3030](http://localhost:3030)
 npm start
 ```
 
+## Testing
+
+Unit testing could be run with command test
+
+```javascript
+npm run test
+```
+
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
